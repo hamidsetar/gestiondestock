@@ -3,7 +3,7 @@ import { SupabaseService } from '../services/supabaseService';
 import { generateClientListPDF } from '../utils/receipt';
 import { Client, Sale, Rental, Product } from '../types';
 import { Plus, Search, Printer, Eye, User, X, Calendar, ShoppingCart, Package, DollarSign } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 
 const Clients: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -13,6 +13,10 @@ const Clients: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showHistory, setShowHistory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState({
+    startDate: '',
+    endDate: ''
+  });
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -46,12 +50,33 @@ const Clients: React.FC = () => {
     }
   };
 
-  const filteredClients = clients.filter(client =>
-    client.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.phone.includes(searchTerm) ||
-    (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredClients = clients.filter(client => {
+    const clientDate = new Date(client.createdAt);
+    
+    // Filtrage par texte
+    const textMatch = !searchTerm || (
+      client.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.phone.includes(searchTerm) ||
+      (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    // Filtrage par date
+    let dateMatch = true;
+    if (dateFilter.startDate && dateFilter.endDate) {
+      const startDate = startOfDay(new Date(dateFilter.startDate));
+      const endDate = endOfDay(new Date(dateFilter.endDate));
+      dateMatch = isWithinInterval(clientDate, { start: startDate, end: endDate });
+    } else if (dateFilter.startDate) {
+      const startDate = startOfDay(new Date(dateFilter.startDate));
+      dateMatch = clientDate >= startDate;
+    } else if (dateFilter.endDate) {
+      const endDate = endOfDay(new Date(dateFilter.endDate));
+      dateMatch = clientDate <= endDate;
+    }
+
+    return textMatch && dateMatch;
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +136,11 @@ const Clients: React.FC = () => {
   };
 
   const handlePrintClientList = () => {
-    generateClientListPDF(clients);
+    generateClientListPDF(filteredClients);
+  };
+
+  const clearDateFilter = () => {
+    setDateFilter({ startDate: '', endDate: '' });
   };
 
   if (loading) {
@@ -144,19 +173,89 @@ const Clients: React.FC = () => {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Rechercher par nom, téléphone ou email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
+      {/* Search and Filters */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Text Search */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, téléphone ou email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        {/* Date Filter */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            <Calendar className="w-5 h-5 text-gray-400" />
+            <input
+              type="date"
+              placeholder="Date début"
+              value={dateFilter.startDate}
+              onChange={(e) => setDateFilter({...dateFilter, startDate: e.target.value})}
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            <span className="text-gray-400">à</span>
+            <input
+              type="date"
+              placeholder="Date fin"
+              value={dateFilter.endDate}
+              onChange={(e) => setDateFilter({...dateFilter, endDate: e.target.value})}
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            {(dateFilter.startDate || dateFilter.endDate) && (
+              <button
+                onClick={clearDateFilter}
+                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Results Summary */}
+      {(searchTerm || dateFilter.startDate || dateFilter.endDate) && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-800 dark:text-blue-300 font-medium">
+                {filteredClients.length} client(s) trouvé(s)
+              </p>
+              {dateFilter.startDate && dateFilter.endDate && (
+                <p className="text-blue-600 dark:text-blue-400 text-sm">
+                  Période: {format(new Date(dateFilter.startDate), 'dd/MM/yyyy')} - {format(new Date(dateFilter.endDate), 'dd/MM/yyyy')}
+                </p>
+              )}
+              {dateFilter.startDate && !dateFilter.endDate && (
+                <p className="text-blue-600 dark:text-blue-400 text-sm">
+                  Depuis le: {format(new Date(dateFilter.startDate), 'dd/MM/yyyy')}
+                </p>
+              )}
+              {!dateFilter.startDate && dateFilter.endDate && (
+                <p className="text-blue-600 dark:text-blue-400 text-sm">
+                  Jusqu'au: {format(new Date(dateFilter.endDate), 'dd/MM/yyyy')}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                clearDateFilter();
+              }}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
+            >
+              Effacer les filtres
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Add Form */}
       {showAddForm && (
@@ -488,6 +587,9 @@ const Clients: React.FC = () => {
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Date création
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Statistiques
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -512,15 +614,20 @@ const Clients: React.FC = () => {
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {client.firstName} {client.lastName}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Client depuis {format(new Date(client.createdAt), 'dd/MM/yyyy')}
-                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">{client.phone}</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">{client.email || 'Email non renseigné'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {format(new Date(client.createdAt), 'dd/MM/yyyy')}
+                      </div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        {format(new Date(client.createdAt), 'HH:mm')}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">
