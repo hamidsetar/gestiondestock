@@ -8,6 +8,7 @@ import Products from './components/Products';
 import Sales from './components/Sales';
 import Rentals from './components/Rentals';
 import Clients from './components/Clients';
+import Debts from './components/Debts';
 import Users from './components/Users';
 import Settings from './components/Settings';
 import Statistics from './components/Statistics';
@@ -36,6 +37,8 @@ const AppContent: React.FC = () => {
         return <Rentals />;
       case 'clients':
         return <Clients />;
+      case 'debts':
+        return <Debts />;
       case 'statistics':
         return <Statistics />;
       case 'users':
