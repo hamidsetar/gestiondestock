@@ -9,6 +9,8 @@ import Sales from './components/Sales';
 import Rentals from './components/Rentals';
 import Clients from './components/Clients';
 import Debts from './components/Debts';
+import PaymentCompletion from './components/PaymentCompletion';
+import RentalContract from './components/RentalContract';
 import Users from './components/Users';
 import Settings from './components/Settings';
 import Statistics from './components/Statistics';
@@ -40,6 +42,10 @@ const AppContent: React.FC = () => {
         return <Clients />;
       case 'debts':
         return <Debts />;
+      case 'payments':
+        return <PaymentCompletion />;
+      case 'contracts':
+        return <RentalContract />;
       case 'statistics':
         return <Statistics />;
       case 'analytics':

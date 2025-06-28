@@ -14,7 +14,9 @@ import {
   UserCheck,
   BarChart3,
   AlertTriangle,
-  TrendingUp
+  TrendingUp,
+  CreditCard,
+  FileText
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -35,6 +37,8 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
     { id: 'rentals', label: 'Locations', icon: Calendar, adminOnly: false, agentHidden: false },
     { id: 'clients', label: 'Clients', icon: Users, adminOnly: false, agentHidden: false },
     { id: 'debts', label: 'Créances', icon: AlertTriangle, adminOnly: false, agentHidden: false },
+    { id: 'payments', label: 'Paiements', icon: CreditCard, adminOnly: false, agentHidden: false },
+    { id: 'contracts', label: 'Contrats', icon: FileText, adminOnly: false, agentHidden: false },
     { id: 'statistics', label: 'Statistiques', icon: BarChart3, adminOnly: true, agentHidden: false },
     { id: 'analytics', label: 'Organigrammes', icon: TrendingUp, adminOnly: true, agentHidden: false },
     { id: 'users', label: 'Utilisateurs', icon: UserCheck, adminOnly: true, agentHidden: false },
