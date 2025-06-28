@@ -82,7 +82,7 @@ const Sales: React.FC = () => {
     return textMatch && dateMatch;
   });
 
-  // Recherche de produit par code-barres CORRIGÉE
+  // Recherche de produit par code-barres avec sélection automatique
   const handleBarcodeSearch = () => {
     if (!barcodeSearch.trim()) {
       alert('Veuillez saisir un code-barres');
@@ -121,10 +121,13 @@ const Sales: React.FC = () => {
     }
     
     if (product) {
+      // ✅ SÉLECTION AUTOMATIQUE DU PRODUIT
       setSaleForm({...saleForm, productId: product.id});
       setBarcodeSearch('');
-      alert(`✅ Produit trouvé: ${product.name}\nCode: ${product.barcode}\nStock: ${product.stock} unités\nPrix: ${product.price.toFixed(2)} DH`);
-      console.log('✅ Produit trouvé:', product);
+      
+      // Message de confirmation avec détails
+      alert(`✅ Produit sélectionné automatiquement !\n\n📦 ${product.name}\n🏷️ Code: ${product.barcode}\n📊 Stock: ${product.stock} unités\n💰 Prix: ${product.price.toFixed(2)} DH\n\n➡️ Le produit a été ajouté au formulaire de vente.`);
+      console.log('✅ Produit sélectionné automatiquement:', product);
     } else {
       // Vérifier si le produit existe mais sans stock
       const productNoStock = products.find(p => 
@@ -132,10 +135,10 @@ const Sales: React.FC = () => {
       );
       
       if (productNoStock) {
-        alert(`❌ Produit trouvé mais en rupture de stock:\n${productNoStock.name}\nCode: ${productNoStock.barcode}\nStock: ${productNoStock.stock}`);
+        alert(`❌ Produit trouvé mais en rupture de stock:\n\n📦 ${productNoStock.name}\n🏷️ Code: ${productNoStock.barcode}\n📊 Stock: ${productNoStock.stock}\n\n⚠️ Impossible de sélectionner ce produit.`);
         console.log('❌ Produit sans stock:', productNoStock);
       } else {
-        alert(`❌ Aucun produit trouvé avec le code-barres: "${barcodeSearch}"\n\nVérifiez:\n- L'orthographe du code\n- Que le produit existe dans la base\n- Que le stock n'est pas à zéro`);
+        alert(`❌ Aucun produit trouvé avec le code-barres: "${barcodeSearch}"\n\n🔍 Vérifiez:\n• L'orthographe du code\n• Que le produit existe dans la base\n• Que le stock n'est pas à zéro\n\n💡 Astuce: La recherche fonctionne avec des codes partiels.`);
         console.log('❌ Aucun produit trouvé pour:', barcodeSearch);
         console.log('📋 Codes-barres disponibles:', products.map(p => p.barcode));
       }
@@ -273,6 +276,9 @@ const Sales: React.FC = () => {
     setDateFilter({ startDate: '', endDate: '' });
   };
 
+  // Obtenir le nom du produit sélectionné pour l'affichage
+  const selectedProduct = products.find(p => p.id === saleForm.productId);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -407,8 +413,18 @@ const Sales: React.FC = () => {
                 Rechercher
               </button>
             </div>
+            {selectedProduct && (
+              <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <p className="text-green-800 dark:text-green-300 font-medium">
+                  ✅ Produit sélectionné: {selectedProduct.name}
+                </p>
+                <p className="text-green-600 dark:text-green-400 text-sm">
+                  Code: {selectedProduct.barcode} | Stock: {selectedProduct.stock} | Prix: {selectedProduct.price.toFixed(2)} DH
+                </p>
+              </div>
+            )}
             <p className="text-xs text-teal-600 dark:text-teal-400 mt-2">
-              💡 Astuce: La recherche fonctionne avec des codes-barres partiels et ignore la casse
+              💡 Astuce: Le produit sera sélectionné automatiquement une fois trouvé
             </p>
           </div>
 

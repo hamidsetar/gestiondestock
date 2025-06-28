@@ -72,33 +72,33 @@ const Rentals: React.FC = () => {
     if (dateFilter.startDate && dateFilter.endDate) {
       const startDate = startOfDay(new Date(dateFilter.startDate));
       const endDate = endOfDay(new Date(dateFilter.endDate));
-      dateMatch = isAfter(rentalDate, startDate) && isBefore(rentalDate, endDate) || 
-                  rentalDate.toDateString() === startDate.toDateString() ||
-                  rentalDate.toDateString() === endDate.toDateString();
+      dateMatch = (rentalDate >= startDate && rentalDate <= endDate);
     } else if (dateFilter.startDate) {
       const startDate = startOfDay(new Date(dateFilter.startDate));
-      dateMatch = isAfter(rentalDate, startDate) || rentalDate.toDateString() === startDate.toDateString();
+      dateMatch = rentalDate >= startDate;
     } else if (dateFilter.endDate) {
       const endDate = endOfDay(new Date(dateFilter.endDate));
-      dateMatch = isBefore(rentalDate, endDate) || rentalDate.toDateString() === endDate.toDateString();
+      dateMatch = rentalDate <= endDate;
     }
 
     return textMatch && dateMatch;
   });
 
-  // Recherche de produit par code-barres améliorée
+  // Recherche de produit par code-barres avec sélection automatique
   const handleBarcodeSearch = () => {
     if (!barcodeSearch.trim()) {
       alert('Veuillez saisir un code-barres');
       return;
     }
 
+    console.log('🔍 Recherche du code-barres:', barcodeSearch.trim());
+
     // Recherche exacte d'abord
     let product = products.find(p => 
-      p.barcode === barcodeSearch.trim() && p.stock > 0
+      p.barcode.trim() === barcodeSearch.trim() && p.stock > 0
     );
     
-    // Si pas trouvé, recherche partielle
+    // Si pas trouvé, recherche partielle (contient)
     if (!product) {
       product = products.find(p => 
         p.barcode.includes(barcodeSearch.trim()) && p.stock > 0
@@ -108,24 +108,39 @@ const Rentals: React.FC = () => {
     // Si toujours pas trouvé, recherche insensible à la casse
     if (!product) {
       product = products.find(p => 
-        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase()) && p.stock > 0
+        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase().trim()) && p.stock > 0
       );
+    }
+
+    // Si toujours pas trouvé, recherche très flexible
+    if (!product) {
+      const cleanBarcode = barcodeSearch.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      product = products.find(p => {
+        const cleanProductBarcode = p.barcode.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        return cleanProductBarcode.includes(cleanBarcode) && p.stock > 0;
+      });
     }
     
     if (product) {
+      // ✅ SÉLECTION AUTOMATIQUE DU PRODUIT
       setRentalForm({...rentalForm, productId: product.id});
       setBarcodeSearch('');
-      alert(`✅ Produit trouvé: ${product.name} (Stock: ${product.stock})`);
+      
+      // Message de confirmation avec détails
+      alert(`✅ Produit sélectionné automatiquement !\n\n📦 ${product.name}\n🏷️ Code: ${product.barcode}\n📊 Stock: ${product.stock} unités\n💰 Prix location: ${product.rentalPrice.toFixed(2)} DH/jour\n\n➡️ Le produit a été ajouté au formulaire de location.`);
+      console.log('✅ Produit sélectionné automatiquement:', product);
     } else {
       // Vérifier si le produit existe mais sans stock
       const productNoStock = products.find(p => 
-        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase())
+        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase().trim())
       );
       
       if (productNoStock) {
-        alert(`❌ Produit trouvé mais en rupture de stock: ${productNoStock.name} (Stock: ${productNoStock.stock})`);
+        alert(`❌ Produit trouvé mais en rupture de stock:\n\n📦 ${productNoStock.name}\n🏷️ Code: ${productNoStock.barcode}\n📊 Stock: ${productNoStock.stock}\n\n⚠️ Impossible de sélectionner ce produit.`);
+        console.log('❌ Produit sans stock:', productNoStock);
       } else {
-        alert('❌ Aucun produit trouvé avec ce code-barres');
+        alert(`❌ Aucun produit trouvé avec le code-barres: "${barcodeSearch}"\n\n🔍 Vérifiez:\n• L'orthographe du code\n• Que le produit existe dans la base\n• Que le stock n'est pas à zéro\n\n💡 Astuce: La recherche fonctionne avec des codes partiels.`);
+        console.log('❌ Aucun produit trouvé pour:', barcodeSearch);
       }
     }
   };
@@ -288,6 +303,9 @@ const Rentals: React.FC = () => {
     setDateFilter({ startDate: '', endDate: '' });
   };
 
+  // Obtenir le nom du produit sélectionné pour l'affichage
+  const selectedProduct = products.find(p => p.id === rentalForm.productId);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -422,8 +440,18 @@ const Rentals: React.FC = () => {
                 Rechercher
               </button>
             </div>
+            {selectedProduct && (
+              <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <p className="text-green-800 dark:text-green-300 font-medium">
+                  ✅ Produit sélectionné: {selectedProduct.name}
+                </p>
+                <p className="text-green-600 dark:text-green-400 text-sm">
+                  Code: {selectedProduct.barcode} | Stock: {selectedProduct.stock} | Prix: {selectedProduct.rentalPrice.toFixed(2)} DH/jour
+                </p>
+              </div>
+            )}
             <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
-              💡 Astuce: La recherche fonctionne avec des codes-barres partiels
+              💡 Astuce: Le produit sera sélectionné automatiquement une fois trouvé
             </p>
           </div>
 
