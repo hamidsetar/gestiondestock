@@ -1,0 +1,137 @@
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Calendar,
+  Users,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  UserCheck
+} from 'lucide-react';
+
+interface LayoutProps {
+  children: React.ReactNode;
+  currentPage: string;
+  onPageChange: (page: string) => void;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) => {
+  const { user, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigationItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false, agentHidden: true },
+    { id: 'products', label: 'Produits', icon: Package, adminOnly: true, agentHidden: false },
+    { id: 'sales', label: 'Ventes', icon: ShoppingCart, adminOnly: false, agentHidden: false },
+    { id: 'rentals', label: 'Locations', icon: Calendar, adminOnly: false, agentHidden: false },
+    { id: 'clients', label: 'Clients', icon: Users, adminOnly: false, agentHidden: false },
+    { id: 'users', label: 'Utilisateurs', icon: UserCheck, adminOnly: true, agentHidden: false },
+    { id: 'settings', label: 'Paramètres', icon: Settings, adminOnly: true, agentHidden: false },
+  ];
+
+  const filteredNavigation = navigationItems.filter(item => {
+    // Si c'est un admin, il voit tout sauf les éléments cachés pour les agents
+    if (user?.role === 'admin') {
+      return !item.adminOnly || user?.role === 'admin';
+    }
+    // Si c'est un agent, il ne voit pas le dashboard et les éléments admin uniquement
+    if (user?.role === 'agent') {
+      return !item.adminOnly && !item.agentHidden;
+    }
+    return false;
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="bg-white p-2 rounded-lg shadow-lg"
+        >
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0`}>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-teal-600 to-teal-700">
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/hali.jpg" 
+                alt="Hali Logo" 
+                className="w-12 h-12 rounded-lg bg-white p-1"
+              />
+              <div>
+                <h1 className="text-xl font-bold text-white">Hali</h1>
+                <p className="text-sm text-teal-100 mt-1">
+                  {user?.firstName} {user?.lastName} ({user?.role})
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-2">
+            {filteredNavigation.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    onPageChange(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${
+                    currentPage === item.id
+                      ? 'bg-teal-50 text-teal-700 border-r-4 border-teal-600'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 mr-3" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Logout */}
+          <div className="p-4 border-t border-gray-200">
+            <button
+              onClick={logout}
+              className="w-full flex items-center px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <LogOut className="w-5 h-5 mr-3" />
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="lg:ml-64">
+        <div className="p-4 lg:p-8">
+          {children}
+        </div>
+      </div>
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Layout;
