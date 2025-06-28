@@ -10,6 +10,7 @@ import Rentals from './components/Rentals';
 import Clients from './components/Clients';
 import Users from './components/Users';
 import Settings from './components/Settings';
+import Statistics from './components/Statistics';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -35,6 +36,8 @@ const AppContent: React.FC = () => {
         return <Rentals />;
       case 'clients':
         return <Clients />;
+      case 'statistics':
+        return <Statistics />;
       case 'users':
         return <Users />;
       case 'settings':

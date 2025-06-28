@@ -4,7 +4,7 @@ import { generateReceiptPDF } from '../utils/receipt';
 import { Rental, Product, Client, Receipt } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { Plus, Search, Printer, Calendar, Clock, AlertTriangle, Scan, X, User } from 'lucide-react';
-import { format, differenceInDays, isAfter } from 'date-fns';
+import { format, differenceInDays, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 
 const Rentals: React.FC = () => {
   const { user } = useAuth();
@@ -16,6 +16,10 @@ const Rentals: React.FC = () => {
   const [barcodeSearch, setBarcodeSearch] = useState('');
   const [clientSearch, setClientSearch] = useState('');
   const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [dateFilter, setDateFilter] = useState({
+    startDate: '',
+    endDate: ''
+  });
   const [loading, setLoading] = useState(true);
 
   const [rentalForm, setRentalForm] = useState({
@@ -52,13 +56,34 @@ const Rentals: React.FC = () => {
   const filteredRentals = rentals.filter(rental => {
     const client = clients.find(c => c.id === rental.clientId);
     const product = products.find(p => p.id === rental.productId);
-    return (
+    const rentalDate = new Date(rental.createdAt);
+    
+    // Filtrage par texte
+    const textMatch = (
       client?.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client?.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client?.phone.includes(searchTerm) ||
       product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product?.barcode.includes(searchTerm)
     );
+
+    // Filtrage par date
+    let dateMatch = true;
+    if (dateFilter.startDate && dateFilter.endDate) {
+      const startDate = startOfDay(new Date(dateFilter.startDate));
+      const endDate = endOfDay(new Date(dateFilter.endDate));
+      dateMatch = isAfter(rentalDate, startDate) && isBefore(rentalDate, endDate) || 
+                  rentalDate.toDateString() === startDate.toDateString() ||
+                  rentalDate.toDateString() === endDate.toDateString();
+    } else if (dateFilter.startDate) {
+      const startDate = startOfDay(new Date(dateFilter.startDate));
+      dateMatch = isAfter(rentalDate, startDate) || rentalDate.toDateString() === startDate.toDateString();
+    } else if (dateFilter.endDate) {
+      const endDate = endOfDay(new Date(dateFilter.endDate));
+      dateMatch = isBefore(rentalDate, endDate) || rentalDate.toDateString() === endDate.toDateString();
+    }
+
+    return textMatch && dateMatch;
   });
 
   // Recherche de produit par code-barres améliorée
@@ -68,16 +93,40 @@ const Rentals: React.FC = () => {
       return;
     }
 
-    const product = products.find(p => 
-      p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase()) && p.stock > 0
+    // Recherche exacte d'abord
+    let product = products.find(p => 
+      p.barcode === barcodeSearch.trim() && p.stock > 0
     );
+    
+    // Si pas trouvé, recherche partielle
+    if (!product) {
+      product = products.find(p => 
+        p.barcode.includes(barcodeSearch.trim()) && p.stock > 0
+      );
+    }
+    
+    // Si toujours pas trouvé, recherche insensible à la casse
+    if (!product) {
+      product = products.find(p => 
+        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase()) && p.stock > 0
+      );
+    }
     
     if (product) {
       setRentalForm({...rentalForm, productId: product.id});
       setBarcodeSearch('');
-      alert(`Produit trouvé: ${product.name}`);
+      alert(`✅ Produit trouvé: ${product.name} (Stock: ${product.stock})`);
     } else {
-      alert('Produit non trouvé ou en rupture de stock');
+      // Vérifier si le produit existe mais sans stock
+      const productNoStock = products.find(p => 
+        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase())
+      );
+      
+      if (productNoStock) {
+        alert(`❌ Produit trouvé mais en rupture de stock: ${productNoStock.name} (Stock: ${productNoStock.stock})`);
+      } else {
+        alert('❌ Aucun produit trouvé avec ce code-barres');
+      }
     }
   };
 
@@ -235,6 +284,10 @@ const Rentals: React.FC = () => {
     generateReceiptPDF(receipt, client, products);
   };
 
+  const clearDateFilter = () => {
+    setDateFilter({ startDate: '', endDate: '' });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -256,19 +309,77 @@ const Rentals: React.FC = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Rechercher par client ou produit..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
+      {/* Search and Filters */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Text Search */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Rechercher par client ou produit..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        {/* Date Filter */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            <Calendar className="w-5 h-5 text-gray-400" />
+            <input
+              type="date"
+              placeholder="Date début"
+              value={dateFilter.startDate}
+              onChange={(e) => setDateFilter({...dateFilter, startDate: e.target.value})}
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            <span className="text-gray-400">à</span>
+            <input
+              type="date"
+              placeholder="Date fin"
+              value={dateFilter.endDate}
+              onChange={(e) => setDateFilter({...dateFilter, endDate: e.target.value})}
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            {(dateFilter.startDate || dateFilter.endDate) && (
+              <button
+                onClick={clearDateFilter}
+                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Results Summary */}
+      {(searchTerm || dateFilter.startDate || dateFilter.endDate) && (
+        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-800 dark:text-purple-300 font-medium">
+                {filteredRentals.length} location(s) trouvée(s)
+              </p>
+              <p className="text-purple-600 dark:text-purple-400 text-sm">
+                Total: {filteredRentals.reduce((sum, rental) => sum + rental.totalAmount, 0).toFixed(2)} DH
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                clearDateFilter();
+              }}
+              className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 text-sm"
+            >
+              Effacer les filtres
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Rental Form */}
       {showRentalForm && (
@@ -311,6 +422,9 @@ const Rentals: React.FC = () => {
                 Rechercher
               </button>
             </div>
+            <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">
+              💡 Astuce: La recherche fonctionne avec des codes-barres partiels
+            </p>
           </div>
 
           {/* Recherche de client */}
@@ -457,6 +571,9 @@ const Rentals: React.FC = () => {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Client
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -484,6 +601,14 @@ const Rentals: React.FC = () => {
                 
                 return (
                   <tr key={rental.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {format(new Date(rental.createdAt), 'dd/MM/yyyy')}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {format(new Date(rental.createdAt), 'HH:mm')}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {client?.firstName} {client?.lastName}

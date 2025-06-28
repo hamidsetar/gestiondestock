@@ -3,7 +3,8 @@ import { SupabaseService } from '../services/supabaseService';
 import { generateReceiptPDF } from '../utils/receipt';
 import { Sale, Product, Client, Receipt } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Search, Printer, DollarSign, Scan, X, User } from 'lucide-react';
+import { Plus, Search, Printer, DollarSign, Scan, X, User, Calendar } from 'lucide-react';
+import { format, isAfter, isBefore, startOfDay, endOfDay } from 'date-fns';
 
 const Sales: React.FC = () => {
   const { user } = useAuth();
@@ -15,6 +16,10 @@ const Sales: React.FC = () => {
   const [barcodeSearch, setBarcodeSearch] = useState('');
   const [clientSearch, setClientSearch] = useState('');
   const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [dateFilter, setDateFilter] = useState({
+    startDate: '',
+    endDate: ''
+  });
   const [loading, setLoading] = useState(true);
 
   const [saleForm, setSaleForm] = useState({
@@ -49,32 +54,91 @@ const Sales: React.FC = () => {
   const filteredSales = sales.filter(sale => {
     const client = clients.find(c => c.id === sale.clientId);
     const product = products.find(p => p.id === sale.productId);
-    return (
+    const saleDate = new Date(sale.createdAt);
+    
+    // Filtrage par texte
+    const textMatch = !searchTerm || (
       client?.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client?.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client?.phone.includes(searchTerm) ||
       product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product?.barcode.includes(searchTerm)
     );
+
+    // Filtrage par date amélioré
+    let dateMatch = true;
+    if (dateFilter.startDate && dateFilter.endDate) {
+      const startDate = startOfDay(new Date(dateFilter.startDate));
+      const endDate = endOfDay(new Date(dateFilter.endDate));
+      dateMatch = (saleDate >= startDate && saleDate <= endDate);
+    } else if (dateFilter.startDate) {
+      const startDate = startOfDay(new Date(dateFilter.startDate));
+      dateMatch = saleDate >= startDate;
+    } else if (dateFilter.endDate) {
+      const endDate = endOfDay(new Date(dateFilter.endDate));
+      dateMatch = saleDate <= endDate;
+    }
+
+    return textMatch && dateMatch;
   });
 
-  // Recherche de produit par code-barres améliorée
+  // Recherche de produit par code-barres CORRIGÉE
   const handleBarcodeSearch = () => {
     if (!barcodeSearch.trim()) {
       alert('Veuillez saisir un code-barres');
       return;
     }
 
-    const product = products.find(p => 
-      p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase()) && p.stock > 0
+    console.log('🔍 Recherche du code-barres:', barcodeSearch.trim());
+    console.log('📦 Produits disponibles:', products.map(p => ({ name: p.name, barcode: p.barcode, stock: p.stock })));
+
+    // Recherche exacte d'abord
+    let product = products.find(p => 
+      p.barcode.trim() === barcodeSearch.trim() && p.stock > 0
     );
+    
+    // Si pas trouvé, recherche partielle (contient)
+    if (!product) {
+      product = products.find(p => 
+        p.barcode.includes(barcodeSearch.trim()) && p.stock > 0
+      );
+    }
+    
+    // Si toujours pas trouvé, recherche insensible à la casse
+    if (!product) {
+      product = products.find(p => 
+        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase().trim()) && p.stock > 0
+      );
+    }
+
+    // Si toujours pas trouvé, recherche très flexible (supprime espaces et caractères spéciaux)
+    if (!product) {
+      const cleanBarcode = barcodeSearch.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      product = products.find(p => {
+        const cleanProductBarcode = p.barcode.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        return cleanProductBarcode.includes(cleanBarcode) && p.stock > 0;
+      });
+    }
     
     if (product) {
       setSaleForm({...saleForm, productId: product.id});
       setBarcodeSearch('');
-      alert(`Produit trouvé: ${product.name}`);
+      alert(`✅ Produit trouvé: ${product.name}\nCode: ${product.barcode}\nStock: ${product.stock} unités\nPrix: ${product.price.toFixed(2)} DH`);
+      console.log('✅ Produit trouvé:', product);
     } else {
-      alert('Produit non trouvé ou en rupture de stock');
+      // Vérifier si le produit existe mais sans stock
+      const productNoStock = products.find(p => 
+        p.barcode.toLowerCase().includes(barcodeSearch.toLowerCase().trim())
+      );
+      
+      if (productNoStock) {
+        alert(`❌ Produit trouvé mais en rupture de stock:\n${productNoStock.name}\nCode: ${productNoStock.barcode}\nStock: ${productNoStock.stock}`);
+        console.log('❌ Produit sans stock:', productNoStock);
+      } else {
+        alert(`❌ Aucun produit trouvé avec le code-barres: "${barcodeSearch}"\n\nVérifiez:\n- L'orthographe du code\n- Que le produit existe dans la base\n- Que le stock n'est pas à zéro`);
+        console.log('❌ Aucun produit trouvé pour:', barcodeSearch);
+        console.log('📋 Codes-barres disponibles:', products.map(p => p.barcode));
+      }
     }
   };
 
@@ -82,7 +146,8 @@ const Sales: React.FC = () => {
   const filteredClients = clients.filter(client =>
     client.firstName.toLowerCase().includes(clientSearch.toLowerCase()) ||
     client.lastName.toLowerCase().includes(clientSearch.toLowerCase()) ||
-    client.phone.includes(clientSearch)
+    client.phone.includes(clientSearch) ||
+    (client.email && client.email.toLowerCase().includes(clientSearch.toLowerCase()))
   );
 
   const handleClientSelect = (client: Client) => {
@@ -204,6 +269,10 @@ const Sales: React.FC = () => {
     generateReceiptPDF(receipt, client, products);
   };
 
+  const clearDateFilter = () => {
+    setDateFilter({ startDate: '', endDate: '' });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -225,19 +294,77 @@ const Sales: React.FC = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Rechercher par client ou produit..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          />
+      {/* Search and Filters */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Text Search */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Rechercher par client ou produit..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        {/* Date Filter */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            <Calendar className="w-5 h-5 text-gray-400" />
+            <input
+              type="date"
+              placeholder="Date début"
+              value={dateFilter.startDate}
+              onChange={(e) => setDateFilter({...dateFilter, startDate: e.target.value})}
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            <span className="text-gray-400">à</span>
+            <input
+              type="date"
+              placeholder="Date fin"
+              value={dateFilter.endDate}
+              onChange={(e) => setDateFilter({...dateFilter, endDate: e.target.value})}
+              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            />
+            {(dateFilter.startDate || dateFilter.endDate) && (
+              <button
+                onClick={clearDateFilter}
+                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Results Summary */}
+      {(searchTerm || dateFilter.startDate || dateFilter.endDate) && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-800 dark:text-blue-300 font-medium">
+                {filteredSales.length} vente(s) trouvée(s)
+              </p>
+              <p className="text-blue-600 dark:text-blue-400 text-sm">
+                Total: {filteredSales.reduce((sum, sale) => sum + sale.totalAmount, 0).toFixed(2)} DH
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                clearDateFilter();
+              }}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
+            >
+              Effacer les filtres
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Sale Form */}
       {showSaleForm && (
@@ -280,6 +407,9 @@ const Sales: React.FC = () => {
                 Rechercher
               </button>
             </div>
+            <p className="text-xs text-teal-600 dark:text-teal-400 mt-2">
+              💡 Astuce: La recherche fonctionne avec des codes-barres partiels et ignore la casse
+            </p>
           </div>
 
           {/* Recherche de client */}
@@ -291,7 +421,7 @@ const Sales: React.FC = () => {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Rechercher un client par nom ou téléphone..."
+                placeholder="Rechercher un client par nom, téléphone ou email..."
                 value={clientSearch}
                 onChange={(e) => {
                   setClientSearch(e.target.value);
@@ -404,6 +534,9 @@ const Sales: React.FC = () => {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Client
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -427,6 +560,14 @@ const Sales: React.FC = () => {
                 
                 return (
                   <tr key={sale.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {format(new Date(sale.createdAt), 'dd/MM/yyyy')}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {format(new Date(sale.createdAt), 'HH:mm')}
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {client?.firstName} {client?.lastName}

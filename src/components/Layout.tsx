@@ -11,7 +11,8 @@ import {
   LogOut,
   Menu,
   X,
-  UserCheck
+  UserCheck,
+  BarChart3
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -31,6 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
     { id: 'sales', label: 'Ventes', icon: ShoppingCart, adminOnly: false, agentHidden: false },
     { id: 'rentals', label: 'Locations', icon: Calendar, adminOnly: false, agentHidden: false },
     { id: 'clients', label: 'Clients', icon: Users, adminOnly: false, agentHidden: false },
+    { id: 'statistics', label: 'Statistiques', icon: BarChart3, adminOnly: true, agentHidden: false },
     { id: 'users', label: 'Utilisateurs', icon: UserCheck, adminOnly: true, agentHidden: false },
     { id: 'settings', label: 'Paramètres', icon: Settings, adminOnly: false, agentHidden: false },
   ];
