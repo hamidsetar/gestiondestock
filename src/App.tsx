@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Login from './components/Login';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -8,6 +9,7 @@ import Sales from './components/Sales';
 import Rentals from './components/Rentals';
 import Clients from './components/Clients';
 import Users from './components/Users';
+import Settings from './components/Settings';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -35,6 +37,8 @@ const AppContent: React.FC = () => {
         return <Clients />;
       case 'users':
         return <Users />;
+      case 'settings':
+        return <Settings />;
       default:
         return user?.role === 'admin' ? <Dashboard /> : <Sales />;
     }
@@ -49,9 +53,13 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+          <AppContent />
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
