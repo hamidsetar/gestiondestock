@@ -12,6 +12,7 @@ import Debts from './components/Debts';
 import Users from './components/Users';
 import Settings from './components/Settings';
 import Statistics from './components/Statistics';
+import Analytics from './components/Analytics';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -41,6 +42,8 @@ const AppContent: React.FC = () => {
         return <Debts />;
       case 'statistics':
         return <Statistics />;
+      case 'analytics':
+        return <Analytics />;
       case 'users':
         return <Users />;
       case 'settings':

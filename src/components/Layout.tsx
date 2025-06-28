@@ -13,7 +13,8 @@ import {
   X,
   UserCheck,
   BarChart3,
-  AlertTriangle
+  AlertTriangle,
+  TrendingUp
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -35,6 +36,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
     { id: 'clients', label: 'Clients', icon: Users, adminOnly: false, agentHidden: false },
     { id: 'debts', label: 'Créances', icon: AlertTriangle, adminOnly: false, agentHidden: false },
     { id: 'statistics', label: 'Statistiques', icon: BarChart3, adminOnly: true, agentHidden: false },
+    { id: 'analytics', label: 'Organigrammes', icon: TrendingUp, adminOnly: true, agentHidden: false },
     { id: 'users', label: 'Utilisateurs', icon: UserCheck, adminOnly: true, agentHidden: false },
     { id: 'settings', label: 'Paramètres', icon: Settings, adminOnly: false, agentHidden: false },
   ];
