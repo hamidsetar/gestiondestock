@@ -79,11 +79,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
             <div className="flex items-center space-x-3">
               <img 
                 src="/hali copy.jpg" 
-                alt="Hali Logo" 
+                alt="Hiya Logo" 
                 className="w-12 h-12 rounded-lg bg-white p-1"
               />
               <div>
-                <h1 className="text-xl font-bold text-white">Hali</h1>
+                <h1 className="text-xl font-bold text-white">Hiya</h1>
                 <p className="text-sm text-teal-100 mt-1">
                   {user?.firstName} {user?.lastName} ({user?.role})
                 </p>

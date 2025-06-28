@@ -2,15 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { SupabaseService } from '../services/supabaseService';
 import { generateClientListPDF } from '../utils/receipt';
 import { Client, Sale, Rental, Product } from '../types';
-import { Plus, Search, Printer, Eye, User, X, Calendar, ShoppingCart, Package, DollarSign } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Plus, Search, Printer, Eye, User, X, Calendar, ShoppingCart, Package, DollarSign, Edit, Trash2 } from 'lucide-react';
 import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
 
 const Clients: React.FC = () => {
+  const { user } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showHistory, setShowHistory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState({
@@ -78,34 +81,82 @@ const Clients: React.FC = () => {
     return textMatch && dateMatch;
   });
 
+  const resetForm = () => {
+    setFormData({
+      firstName: '',
+      lastName: '',
+      phone: '',
+      email: '',
+      address: ''
+    });
+    setEditingClient(null);
+    setShowAddForm(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
-      const newClient: Client = {
-        id: crypto.randomUUID(),
+      const clientData: Client = {
+        id: editingClient?.id || crypto.randomUUID(),
         firstName: formData.firstName,
         lastName: formData.lastName,
         phone: formData.phone,
         email: formData.email,
         address: formData.address,
-        createdAt: new Date().toISOString()
+        createdAt: editingClient?.createdAt || new Date().toISOString()
       };
 
-      await SupabaseService.saveClient(newClient);
+      await SupabaseService.saveClient(clientData);
       await loadData();
-      
-      setFormData({
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        address: ''
-      });
-      setShowAddForm(false);
+      resetForm();
     } catch (error) {
       console.error('Error saving client:', error);
       alert('Erreur lors de la sauvegarde du client');
+    }
+  };
+
+  const handleEdit = (client: Client) => {
+    if (user?.role !== 'admin') {
+      alert('Seuls les administrateurs peuvent modifier les clients');
+      return;
+    }
+    
+    setEditingClient(client);
+    setFormData({
+      firstName: client.firstName,
+      lastName: client.lastName,
+      phone: client.phone,
+      email: client.email || '',
+      address: client.address || ''
+    });
+    setShowAddForm(true);
+  };
+
+  const handleDelete = async (client: Client) => {
+    if (user?.role !== 'admin') {
+      alert('Seuls les administrateurs peuvent supprimer les clients');
+      return;
+    }
+
+    // Vérifier si le client a des transactions
+    const clientSales = sales.filter(sale => sale.clientId === client.id);
+    const clientRentals = rentals.filter(rental => rental.clientId === client.id);
+    
+    if (clientSales.length > 0 || clientRentals.length > 0) {
+      alert(`Impossible de supprimer ce client car il a ${clientSales.length + clientRentals.length} transaction(s) associée(s).`);
+      return;
+    }
+
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le client ${client.firstName} ${client.lastName} ?`)) {
+      try {
+        await SupabaseService.deleteClient(client.id);
+        await loadData();
+        alert('Client supprimé avec succès');
+      } catch (error) {
+        console.error('Error deleting client:', error);
+        alert('Erreur lors de la suppression du client');
+      }
     }
   };
 
@@ -257,10 +308,12 @@ const Clients: React.FC = () => {
         </div>
       )}
 
-      {/* Add Form */}
+      {/* Add/Edit Form */}
       {showAddForm && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Ajouter un nouveau client</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+            {editingClient ? 'Modifier le client' : 'Ajouter un nouveau client'}
+          </h2>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -319,7 +372,7 @@ const Clients: React.FC = () => {
             <div className="md:col-span-2 flex justify-end space-x-3">
               <button
                 type="button"
-                onClick={() => setShowAddForm(false)}
+                onClick={resetForm}
                 className="px-4 py-2 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Annuler
@@ -328,7 +381,7 @@ const Clients: React.FC = () => {
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Ajouter
+                {editingClient ? 'Modifier' : 'Ajouter'}
               </button>
             </div>
           </form>
@@ -398,7 +451,7 @@ const Clients: React.FC = () => {
                         <div className="flex items-center">
                           <DollarSign className="w-8 h-8 text-green-600 dark:text-green-400 mr-3" />
                           <div>
-                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.totalSpent.toFixed(0)} DH</p>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.totalSpent.toFixed(0)} DA</p>
                             <p className="text-sm text-green-600 dark:text-green-400">Total dépensé</p>
                           </div>
                         </div>
@@ -408,7 +461,7 @@ const Clients: React.FC = () => {
                         <div className="flex items-center">
                           <DollarSign className="w-8 h-8 text-emerald-600 dark:text-emerald-400 mr-3" />
                           <div>
-                            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.totalPaid.toFixed(0)} DH</p>
+                            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{stats.totalPaid.toFixed(0)} DA</p>
                             <p className="text-sm text-emerald-600 dark:text-emerald-400">Total payé</p>
                           </div>
                         </div>
@@ -418,7 +471,7 @@ const Clients: React.FC = () => {
                         <div className="flex items-center">
                           <DollarSign className="w-8 h-8 text-orange-600 dark:text-orange-400 mr-3" />
                           <div>
-                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.totalRemaining.toFixed(0)} DH</p>
+                            <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.totalRemaining.toFixed(0)} DA</p>
                             <p className="text-sm text-orange-600 dark:text-orange-400">Reste à payer</p>
                           </div>
                         </div>
@@ -452,10 +505,10 @@ const Clients: React.FC = () => {
                                       <span className="font-medium">Quantité:</span> {sale.quantity}
                                     </div>
                                     <div>
-                                      <span className="font-medium">Prix unitaire:</span> {sale.unitPrice.toFixed(2)} DH
+                                      <span className="font-medium">Prix unitaire:</span> {sale.unitPrice.toFixed(2)} DA
                                     </div>
                                     <div>
-                                      <span className="font-medium">Réduction:</span> {sale.discount.toFixed(2)} DH
+                                      <span className="font-medium">Réduction:</span> {sale.discount.toFixed(2)} DA
                                     </div>
                                     <div>
                                       <span className="font-medium">Vendeur:</span> {sale.createdBy}
@@ -463,13 +516,13 @@ const Clients: React.FC = () => {
                                   </div>
                                 </div>
                                 <div className="text-right ml-4">
-                                  <p className="font-medium text-lg text-gray-800 dark:text-white">{sale.totalAmount.toFixed(2)} DH</p>
+                                  <p className="font-medium text-lg text-gray-800 dark:text-white">{sale.totalAmount.toFixed(2)} DA</p>
                                   <p className="text-sm text-green-600 dark:text-green-400">
-                                    Payé: {sale.paidAmount.toFixed(2)} DH
+                                    Payé: {sale.paidAmount.toFixed(2)} DA
                                   </p>
                                   {sale.remainingAmount > 0 && (
                                     <p className="text-sm text-red-600 dark:text-red-400">
-                                      Reste: {sale.remainingAmount.toFixed(2)} DH
+                                      Reste: {sale.remainingAmount.toFixed(2)} DA
                                     </p>
                                   )}
                                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -523,25 +576,25 @@ const Clients: React.FC = () => {
                                       <span className="font-medium">Quantité:</span> {rental.quantity}
                                     </div>
                                     <div>
-                                      <span className="font-medium">Tarif/jour:</span> {rental.dailyRate.toFixed(2)} DH
+                                      <span className="font-medium">Tarif/jour:</span> {rental.dailyRate.toFixed(2)} DA
                                     </div>
                                     <div>
                                       <span className="font-medium">Période:</span> 
                                       {format(new Date(rental.startDate), 'dd/MM')} - {format(new Date(rental.endDate), 'dd/MM')}
                                     </div>
                                     <div>
-                                      <span className="font-medium">Caution:</span> {rental.deposit.toFixed(2)} DH
+                                      <span className="font-medium">Caution:</span> {rental.deposit.toFixed(2)} DA
                                     </div>
                                   </div>
                                 </div>
                                 <div className="text-right ml-4">
-                                  <p className="font-medium text-lg text-gray-800 dark:text-white">{rental.totalAmount.toFixed(2)} DH</p>
+                                  <p className="font-medium text-lg text-gray-800 dark:text-white">{rental.totalAmount.toFixed(2)} DA</p>
                                   <p className="text-sm text-green-600 dark:text-green-400">
-                                    Payé: {rental.paidAmount.toFixed(2)} DH
+                                    Payé: {rental.paidAmount.toFixed(2)} DA
                                   </p>
                                   {rental.remainingAmount > 0 && (
                                     <p className="text-sm text-red-600 dark:text-red-400">
-                                      Reste: {rental.remainingAmount.toFixed(2)} DH
+                                      Reste: {rental.remainingAmount.toFixed(2)} DA
                                     </p>
                                   )}
                                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -634,21 +687,42 @@ const Clients: React.FC = () => {
                         {stats.totalTransactions} transaction(s)
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Total: {stats.totalSpent.toFixed(2)} DH
+                        Total: {stats.totalSpent.toFixed(2)} DA
                       </div>
                       {stats.totalRemaining > 0 && (
                         <div className="text-sm text-red-600 dark:text-red-400">
-                          Reste: {stats.totalRemaining.toFixed(2)} DH
+                          Reste: {stats.totalRemaining.toFixed(2)} DA
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => setShowHistory(client.id)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => setShowHistory(client.id)}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
+                          title="Voir l'historique"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {user?.role === 'admin' && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(client)}
+                              className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
+                              title="Modifier le client"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(client)}
+                              className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
+                              title="Supprimer le client"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

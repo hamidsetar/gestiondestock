@@ -125,7 +125,7 @@ const Settings: React.FC = () => {
               <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <div className="flex justify-between">
                   <span>Nom:</span>
-                  <span className="font-medium">Hali - Gestion de Boutique</span>
+                  <span className="font-medium">Hiya - Gestion de Boutique</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Version:</span>
@@ -133,7 +133,7 @@ const Settings: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Développé par:</span>
-                  <span className="font-medium">Hali Team</span>
+                  <span className="font-medium">Hiya Team</span>
                 </div>
               </div>
             </div>
@@ -169,12 +169,12 @@ const Settings: React.FC = () => {
           <div className="flex justify-center mb-4">
             <img 
               src="/hali copy.jpg" 
-              alt="Hali Logo" 
+              alt="Hiya Logo" 
               className="w-16 h-16 rounded-lg"
             />
           </div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-            Hali - Boutique de Mode
+            Hiya - Boutique de Mode
           </h3>
           <p className="text-gray-600 dark:text-gray-300 text-sm">
             Solution complète de gestion pour boutiques de vêtements et location d'articles de mode.

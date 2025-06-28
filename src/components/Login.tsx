@@ -32,11 +32,11 @@ const Login: React.FC = () => {
           <div className="bg-teal-100 dark:bg-teal-900/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
             <img 
               src="/hali copy.jpg" 
-              alt="Hali Logo" 
+              alt="Hiya Logo" 
               className="w-16 h-16 rounded-full object-cover"
             />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Hali</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Hiya</h1>
           <p className="text-gray-600 dark:text-gray-300 mt-2">Connexion à votre compte</p>
         </div>
 

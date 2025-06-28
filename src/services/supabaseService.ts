@@ -211,6 +211,20 @@ export class SupabaseService {
     }
   }
 
+  static async deleteClient(id: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      throw error;
+    }
+  }
+
   // Sales
   static async getSales(): Promise<Sale[]> {
     try {
