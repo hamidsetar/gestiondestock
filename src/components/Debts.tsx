@@ -176,7 +176,7 @@ const Debts: React.FC = () => {
     
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('RAPPORT DES CRÉANCES - HALI', 105, 60, { align: 'center' });
+    doc.text('RAPPORT DES CRÉANCES - HIYA', 105, 60, { align: 'center' });
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
@@ -194,11 +194,11 @@ const Debts: React.FC = () => {
     doc.setFont('helvetica', 'normal');
     doc.text(`Nombre de clients avec dettes: ${filteredDebts.length}`, 20, yPosition);
     yPosition += 8;
-    doc.text(`Total des créances: ${totalDebts.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Total des créances: ${totalDebts.toFixed(2)} DA`, 20, yPosition);
     yPosition += 8;
-    doc.text(`Créances ventes: ${totalSalesDebts.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Créances ventes: ${totalSalesDebts.toFixed(2)} DA`, 20, yPosition);
     yPosition += 8;
-    doc.text(`Créances locations: ${totalRentalsDebts.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Créances locations: ${totalRentalsDebts.toFixed(2)} DA`, 20, yPosition);
     yPosition += 20;
     
     // Détail par client
@@ -225,103 +225,103 @@ const Debts: React.FC = () => {
       
       doc.text(`${debt.client.firstName} ${debt.client.lastName}`, 20, yPosition);
       doc.text(debt.client.phone, 80, yPosition);
-      doc.text(`${debt.salesDebt.toFixed(2)} DH`, 120, yPosition);
-      doc.text(`${debt.rentalsDebt.toFixed(2)} DH`, 150, yPosition);
-      doc.text(`${debt.totalDebt.toFixed(2)} DH`, 180, yPosition);
+      doc.text(`${debt.salesDebt.toFixed(2)} DA`, 120, yPosition);
+      doc.text(`${debt.rentalsDebt.toFixed(2)} DA`, 150, yPosition);
+      doc.text(`${debt.totalDebt.toFixed(2)} DA`, 180, yPosition);
       
       yPosition += 8;
     });
     
-    doc.save(`rapport-creances-hali-${format(new Date(), 'dd-MM-yyyy')}.pdf`);
+    doc.save(`rapport-creances-hiya-${format(new Date(), 'dd-MM-yyyy')}.pdf`);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-16 w-16 sm:h-24 sm:w-24 lg:h-32 lg:w-32 border-b-2 border-red-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Gestion des Créances</h1>
+          <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-600 dark:text-red-400" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">Gestion des Créances</h1>
         </div>
         <button
           onClick={generateDebtsReport}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center"
+          className="bg-red-600 text-white px-3 py-2 sm:px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center text-sm sm:text-base"
         >
-          <Download className="w-5 h-5 mr-2" />
+          <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
           Rapport PDF
         </button>
       </div>
 
-      {/* Statistiques globales */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      {/* Statistiques globales - Responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-lg">
-              <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+            <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/20 rounded-lg">
+              <AlertTriangle className="w-4 h-4 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{filteredDebts.length}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Clients avec dettes</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{filteredDebts.length}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Clients avec dettes</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
-              <DollarSign className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+            <div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+              <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalDebts.toFixed(0)} DH</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total créances</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white break-words">{totalDebts.toFixed(0)} DA</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Total créances</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg">
-              <DollarSign className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            <div className="p-2 sm:p-3 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg">
+              <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalSalesDebts.toFixed(0)} DH</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Créances ventes</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white break-words">{totalSalesDebts.toFixed(0)} DA</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Créances ventes</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-              <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="p-2 sm:p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+              <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalRentalsDebts.toFixed(0)} DH</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Créances locations</p>
+            <div className="ml-3 sm:ml-4 min-w-0 flex-1">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white break-words">{totalRentalsDebts.toFixed(0)} DA</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Créances locations</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres - Responsive */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recherche textuelle */}
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder="Rechercher par nom, téléphone ou email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full pl-8 sm:pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
             />
           </div>
         </div>
@@ -329,26 +329,26 @@ const Debts: React.FC = () => {
         {/* Filtre par date */}
         <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <Calendar className="w-5 h-5 text-gray-400" />
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
             <input
               type="date"
               placeholder="Date début"
               value={dateFilter.startDate}
               onChange={(e) => setDateFilter({...dateFilter, startDate: e.target.value})}
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="flex-1 px-2 sm:px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
             />
-            <span className="text-gray-400">à</span>
+            <span className="text-gray-400 text-sm">à</span>
             <input
               type="date"
               placeholder="Date fin"
               value={dateFilter.endDate}
               onChange={(e) => setDateFilter({...dateFilter, endDate: e.target.value})}
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="flex-1 px-2 sm:px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
             />
             {(dateFilter.startDate || dateFilter.endDate) && (
               <button
                 onClick={clearDateFilter}
-                className="px-3 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                className="px-2 sm:px-3 py-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -360,13 +360,13 @@ const Debts: React.FC = () => {
       {/* Résumé des résultats */}
       {(searchTerm || dateFilter.startDate || dateFilter.endDate) && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <p className="text-red-800 dark:text-red-300 font-medium">
+              <p className="text-red-800 dark:text-red-300 font-medium text-sm sm:text-base">
                 {filteredDebts.length} client(s) avec dettes trouvé(s)
               </p>
-              <p className="text-red-600 dark:text-red-400 text-sm">
-                Total créances: {totalDebts.toFixed(2)} DH
+              <p className="text-red-600 dark:text-red-400 text-xs sm:text-sm">
+                Total créances: {totalDebts.toFixed(2)} DA
               </p>
             </div>
             <button
@@ -374,7 +374,7 @@ const Debts: React.FC = () => {
                 setSearchTerm('');
                 clearDateFilter();
               }}
-              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm"
+              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-xs sm:text-sm"
             >
               Effacer les filtres
             </button>
@@ -382,25 +382,25 @@ const Debts: React.FC = () => {
         </div>
       )}
 
-      {/* Liste des clients avec dettes */}
+      {/* Liste des clients avec dettes - Responsive */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Client
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden sm:table-cell">
                   Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Créances
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
                   Dernière transaction
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -408,24 +408,27 @@ const Debts: React.FC = () => {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {filteredDebts.map((debtInfo) => (
                 <tr key={debtInfo.client.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 w-10 h-10">
-                        <div className="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
                         </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      <div className="ml-3 sm:ml-4 min-w-0">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {debtInfo.client.firstName} {debtInfo.client.lastName}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                           {debtInfo.transactionCount} transaction(s)
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden">
+                          {debtInfo.client.phone}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                     <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-white">
                       <Phone className="w-4 h-4 text-gray-400" />
                       <span>{debtInfo.client.phone}</span>
@@ -433,22 +436,22 @@ const Debts: React.FC = () => {
                     {debtInfo.client.email && (
                       <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                         <Mail className="w-4 h-4 text-gray-400" />
-                        <span>{debtInfo.client.email}</span>
+                        <span className="truncate">{debtInfo.client.email}</span>
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-red-600 dark:text-red-400">
-                      {debtInfo.totalDebt.toFixed(2)} DH
+                      {debtInfo.totalDebt.toFixed(2)} DA
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Ventes: {debtInfo.salesDebt.toFixed(2)} DH
+                      Ventes: {debtInfo.salesDebt.toFixed(2)} DA
                     </div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">
-                      Locations: {debtInfo.rentalsDebt.toFixed(2)} DH
+                      Locations: {debtInfo.rentalsDebt.toFixed(2)} DA
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                     <div className="text-sm text-gray-900 dark:text-white">
                       {format(debtInfo.lastTransaction, 'dd/MM/yyyy')}
                     </div>
@@ -456,7 +459,7 @@ const Debts: React.FC = () => {
                       {format(debtInfo.lastTransaction, 'HH:mm')}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => setSelectedClient(selectedClient === debtInfo.client.id ? null : debtInfo.client.id)}
                       className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
@@ -471,42 +474,42 @@ const Debts: React.FC = () => {
         </div>
       </div>
 
-      {/* Détail du client sélectionné */}
+      {/* Détail du client sélectionné - Responsive */}
       {selectedClient && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Détail des créances</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">Détail des créances</h2>
                 <button
                   onClick={() => setSelectedClient(null)}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
               </div>
             </div>
             
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {(() => {
                 const debtInfo = filteredDebts.find(d => d.client.id === selectedClient);
                 if (!debtInfo) return null;
 
                 return (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* Info client */}
-                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+                    <div className="bg-gray-50 dark:bg-gray-700 p-3 sm:p-4 rounded-lg">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-2">
                         {debtInfo.client.firstName} {debtInfo.client.lastName}
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                         <div>
                           <span className="text-gray-600 dark:text-gray-300">Téléphone:</span>
                           <p className="font-medium text-gray-800 dark:text-white">{debtInfo.client.phone}</p>
                         </div>
                         <div>
                           <span className="text-gray-600 dark:text-gray-300">Email:</span>
-                          <p className="font-medium text-gray-800 dark:text-white">{debtInfo.client.email || 'Non renseigné'}</p>
+                          <p className="font-medium text-gray-800 dark:text-white break-words">{debtInfo.client.email || 'Non renseigné'}</p>
                         </div>
                       </div>
                     </div>
@@ -514,29 +517,29 @@ const Debts: React.FC = () => {
                     {/* Ventes impayées */}
                     {debtInfo.sales.length > 0 && (
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
-                          Ventes impayées ({debtInfo.salesDebt.toFixed(2)} DH)
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-3">
+                          Ventes impayées ({debtInfo.salesDebt.toFixed(2)} DA)
                         </h3>
                         <div className="space-y-3">
                           {debtInfo.sales.map((sale) => {
                             const product = products.find(p => p.id === sale.productId);
                             return (
-                              <div key={sale.id} className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-medium text-gray-800 dark:text-white">
+                              <div key={sale.id} className="bg-red-50 dark:bg-red-900/20 p-3 sm:p-4 rounded-lg border border-red-200 dark:border-red-800">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-800 dark:text-white truncate">
                                       {product?.name || 'Produit supprimé'}
                                     </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                       {format(new Date(sale.createdAt), 'dd/MM/yyyy HH:mm')}
                                     </p>
                                   </div>
                                   <div className="text-right">
                                     <p className="font-medium text-red-600 dark:text-red-400">
-                                      Reste: {sale.remainingAmount.toFixed(2)} DH
+                                      Reste: {sale.remainingAmount.toFixed(2)} DA
                                     </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                      Total: {sale.totalAmount.toFixed(2)} DH
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                      Total: {sale.totalAmount.toFixed(2)} DA
                                     </p>
                                   </div>
                                 </div>
@@ -548,34 +551,34 @@ const Debts: React.FC = () => {
                     )}
 
                     {/* Locations impayées */}
-                    {debtInfo.rentals.length > 0 && (
+                    {debtInfo.rentals.length > 0  && (
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
-                          Locations impayées ({debtInfo.rentalsDebt.toFixed(2)} DH)
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white mb-3">
+                          Locations impayées ({debtInfo.rentalsDebt.toFixed(2)} DA)
                         </h3>
                         <div className="space-y-3">
                           {debtInfo.rentals.map((rental) => {
                             const product = products.find(p => p.id === rental.productId);
                             return (
-                              <div key={rental.id} className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <p className="font-medium text-gray-800 dark:text-white">
+                              <div key={rental.id} className="bg-purple-50 dark:bg-purple-900/20 p-3 sm:p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-gray-800 dark:text-white truncate">
                                       {product?.name || 'Produit supprimé'}
                                     </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                       {format(new Date(rental.startDate), 'dd/MM')} - {format(new Date(rental.endDate), 'dd/MM')}
                                     </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
                                       Créé le: {format(new Date(rental.createdAt), 'dd/MM/yyyy HH:mm')}
                                     </p>
                                   </div>
                                   <div className="text-right">
                                     <p className="font-medium text-purple-600 dark:text-purple-400">
-                                      Reste: {rental.remainingAmount.toFixed(2)} DH
+                                      Reste: {rental.remainingAmount.toFixed(2)} DA
                                     </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                      Total: {rental.totalAmount.toFixed(2)} DH
+                                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                                      Total: {rental.totalAmount.toFixed(2)} DA
                                     </p>
                                   </div>
                                 </div>
