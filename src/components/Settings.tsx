@@ -133,7 +133,7 @@ const Settings: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Développé par:</span>
-                  <span className="font-medium">Hiya Team</span>
+                  <span className="font-medium">Zender Akram</span>
                 </div>
               </div>
             </div>
@@ -168,17 +168,20 @@ const Settings: React.FC = () => {
         <div className="p-6 text-center">
           <div className="flex justify-center mb-4">
             <img 
-              src="/hali copy.jpg" 
-              alt="Hiya Logo" 
-              className="w-16 h-16 rounded-lg"
+              src="/zender-logo.jpg" 
+              alt="Zender Akram" 
+              className="w-16 h-16 rounded-full object-cover border-2 border-teal-200 dark:border-teal-700"
             />
           </div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-            Hiya - Boutique de Mode
+            Développeur Zender Akram
           </h3>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+            développé par : Zender Akram
+          </p>
           <p className="text-gray-600 dark:text-gray-300 text-sm">
             Solution complète de gestion pour boutiques de vêtements et location d'articles de mode.
-            Développé avec amour pour simplifier votre gestion quotidienne.
+            Développé avec expertise pour simplifier votre gestion quotidienne.
           </p>
         </div>
       </div>
