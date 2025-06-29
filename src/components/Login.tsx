@@ -88,7 +88,7 @@ const Login: React.FC = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Compte par défaut: admin / admin123</p>
+          
         </div>
       </div>
     </div>
