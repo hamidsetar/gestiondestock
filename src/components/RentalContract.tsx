@@ -53,27 +53,50 @@ const RentalContract: React.FC = () => {
     const doc = new jsPDF();
     const days = differenceInDays(new Date(rental.endDate), new Date(rental.startDate)) + 1;
     
-    // En-tête avec logo
+    let yPosition = 20;
+    
+    // En-tête avec logo - Essayer plusieurs chemins
     try {
-      doc.addImage('/hali copy.jpg', 'JPEG', 85, 10, 40, 40);
-    } catch (error) {
-      console.log('Logo non trouvé');
+      // Essayer d'abord le chemin principal
+      doc.addImage('/hali copy.jpg', 'JPEG', 85, yPosition, 40, 40);
+      console.log('✅ Logo chargé avec succès: /hali copy.jpg');
+      yPosition += 45;
+    } catch (error1) {
+      try {
+        // Essayer le chemin alternatif
+        doc.addImage('/hali.jpg', 'JPEG', 85, yPosition, 40, 40);
+        console.log('✅ Logo chargé avec succès: /hali.jpg');
+        yPosition += 45;
+      } catch (error2) {
+        try {
+          // Essayer un autre chemin
+          doc.addImage('./hali copy.jpg', 'JPEG', 85, yPosition, 40, 40);
+          console.log('✅ Logo chargé avec succès: ./hali copy.jpg');
+          yPosition += 45;
+        } catch (error3) {
+          console.log('❌ Impossible de charger le logo, continuation sans logo');
+          console.log('Erreurs:', { error1, error2, error3 });
+          yPosition += 10;
+        }
+      }
     }
     
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('CONTRAT DE LOCATION', 105, 60, { align: 'center' });
+    doc.text('CONTRAT DE LOCATION', 105, yPosition, { align: 'center' });
+    yPosition += 10;
     
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('HALI - BOUTIQUE DE MODE', 105, 75, { align: 'center' });
+    doc.text('HIYA - BOUTIQUE DE MODE', 105, yPosition, { align: 'center' });
+    yPosition += 8;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text('Adresse: [Votre adresse]', 105, 85, { align: 'center' });
-    doc.text('Téléphone: +212 XXX XXX XXX', 105, 92, { align: 'center' });
-    
-    let yPosition = 110;
+    doc.text('Adresse: [Votre adresse]', 105, yPosition, { align: 'center' });
+    yPosition += 5;
+    doc.text('Téléphone: +213 XXX XXX XXX', 105, yPosition, { align: 'center' });
+    yPosition += 15;
     
     // Informations du contrat
     doc.setFontSize(14);
@@ -101,7 +124,7 @@ const RentalContract: React.FC = () => {
     doc.text('LE BAILLEUR:', 20, yPosition);
     yPosition += 6;
     doc.setFont('helvetica', 'normal');
-    doc.text('HALI - Boutique de Mode', 20, yPosition);
+    doc.text('HIYA - Boutique de Mode', 20, yPosition);
     yPosition += 4;
     doc.text('Représentée par: [Nom du gérant]', 20, yPosition);
     yPosition += 4;
@@ -159,16 +182,16 @@ const RentalContract: React.FC = () => {
     yPosition += 6;
     doc.text(`Durée: ${days} jour${days > 1 ? 's' : ''}`, 20, yPosition);
     yPosition += 6;
-    doc.text(`Tarif journalier: ${rental.dailyRate.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Tarif journalier: ${rental.dailyRate.toFixed(2)} DA`, 20, yPosition);
     yPosition += 6;
-    doc.text(`Montant total de la location: ${rental.totalAmount.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Montant total de la location: ${rental.totalAmount.toFixed(2)} DA`, 20, yPosition);
     yPosition += 6;
-    doc.text(`Caution versée: ${rental.deposit.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Caution versée: ${rental.deposit.toFixed(2)} DA`, 20, yPosition);
     yPosition += 6;
-    doc.text(`Montant payé: ${rental.paidAmount.toFixed(2)} DH`, 20, yPosition);
+    doc.text(`Montant payé: ${rental.paidAmount.toFixed(2)} DA`, 20, yPosition);
     yPosition += 6;
     if (rental.remainingAmount > 0) {
-      doc.text(`Solde restant: ${rental.remainingAmount.toFixed(2)} DH`, 20, yPosition);
+      doc.text(`Solde restant: ${rental.remainingAmount.toFixed(2)} DA`, 20, yPosition);
       yPosition += 6;
     }
     yPosition += 10;
@@ -206,15 +229,15 @@ const RentalContract: React.FC = () => {
       '5. RESPONSABILITÉ',
       '   • Le locataire est responsable de l\'article pendant toute la durée de location.',
       '   • En cas de vol ou de perte, le locataire devra rembourser la valeur de l\'article.',
-      '   • HALI décline toute responsabilité en cas d\'accident lié à l\'utilisation.',
+      '   • HIYA décline toute responsabilité en cas d\'accident lié à l\'utilisation.',
       '',
       '6. RÉSILIATION',
-      '   • En cas de non-respect des conditions, HALI peut résilier le contrat.',
+      '   • En cas de non-respect des conditions, HIYA peut résilier le contrat.',
       '   • Aucun remboursement ne sera effectué en cas de résiliation pour faute.',
       '',
       '7. LITIGES',
       '   • Tout litige sera soumis aux tribunaux compétents.',
-      '   • Le droit marocain s\'applique à ce contrat.'
+      '   • Le droit algérien s\'applique à ce contrat.'
     ];
     
     doc.setFontSize(10);
@@ -253,7 +276,7 @@ const RentalContract: React.FC = () => {
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Le Bailleur (HALI)', 30, yPosition);
+    doc.text('Le Bailleur (HIYA)', 30, yPosition);
     doc.text('Le Locataire', 130, yPosition);
     yPosition += 5;
     doc.text(`Date: ${format(new Date(), 'dd/MM/yyyy')}`, 30, yPosition);
@@ -423,12 +446,12 @@ const RentalContract: React.FC = () => {
                       <div><span className="font-medium">Début:</span> {format(new Date(selectedRental.startDate), 'dd/MM/yyyy')}</div>
                       <div><span className="font-medium">Fin:</span> {format(new Date(selectedRental.endDate), 'dd/MM/yyyy')}</div>
                       <div><span className="font-medium">Durée:</span> {days} jour{days > 1 ? 's' : ''}</div>
-                      <div><span className="font-medium">Tarif/jour:</span> {selectedRental.dailyRate.toFixed(2)} DH</div>
-                      <div><span className="font-medium">Total:</span> {selectedRental.totalAmount.toFixed(2)} DH</div>
-                      <div><span className="font-medium">Caution:</span> {selectedRental.deposit.toFixed(2)} DH</div>
-                      <div><span className="font-medium">Payé:</span> {selectedRental.paidAmount.toFixed(2)} DH</div>
+                      <div><span className="font-medium">Tarif/jour:</span> {selectedRental.dailyRate.toFixed(2)} DA</div>
+                      <div><span className="font-medium">Total:</span> {selectedRental.totalAmount.toFixed(2)} DA</div>
+                      <div><span className="font-medium">Caution:</span> {selectedRental.deposit.toFixed(2)} DA</div>
+                      <div><span className="font-medium">Payé:</span> {selectedRental.paidAmount.toFixed(2)} DA</div>
                       {selectedRental.remainingAmount > 0 && (
-                        <div><span className="font-medium">Reste:</span> {selectedRental.remainingAmount.toFixed(2)} DH</div>
+                        <div><span className="font-medium">Reste:</span> {selectedRental.remainingAmount.toFixed(2)} DA</div>
                       )}
                     </div>
                   </div>
