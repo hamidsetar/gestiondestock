@@ -14,6 +14,15 @@ export const generateReceiptPDF = (receipt: Receipt, client: Client, products: P
   
   let yPosition = 8;
   
+  // Logo en haut du reçu
+  try {
+    doc.addImage('/hali copy.jpg', 'JPEG', 30, yPosition, 20, 20);
+    yPosition += 25;
+  } catch (error) {
+    console.log('Logo non trouvé, continuation sans logo');
+    yPosition += 5;
+  }
+  
   // En-tête boutique
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
@@ -248,6 +257,15 @@ export const generateReceiptPDF = (receipt: Receipt, client: Client, products: P
   // Recréer le contenu dans le nouveau document avec la bonne taille
   finalDoc.setFont('helvetica');
   let finalY = 8;
+  
+  // Logo en haut du reçu
+  try {
+    finalDoc.addImage('/hali copy.jpg', 'JPEG', 30, finalY, 20, 20);
+    finalY += 25;
+  } catch (error) {
+    console.log('Logo non trouvé, continuation sans logo');
+    finalY += 5;
+  }
   
   // En-tête boutique
   finalDoc.setFontSize(18);
