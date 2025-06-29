@@ -209,7 +209,7 @@ const Products: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Prix de vente (DH)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Prix de vente (DA)</label>
               <input
                 type="number"
                 step="0.01"
@@ -221,7 +221,7 @@ const Products: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Prix de location/jour (DH)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Prix de location/jour (DA)</label>
               <input
                 type="number"
                 step="0.01"
@@ -307,8 +307,8 @@ const Products: React.FC = () => {
                     {product.barcode}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div>Vente: {product.price.toFixed(2)} DH</div>
-                    <div className="text-gray-500">Location: {product.rentalPrice.toFixed(2)} DH/jour</div>
+                    <div>Vente: {product.price.toFixed(2)} DA</div>
+                    <div className="text-gray-500">Location: {product.rentalPrice.toFixed(2)} DA/jour</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${

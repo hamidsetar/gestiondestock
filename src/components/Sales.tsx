@@ -126,7 +126,7 @@ const Sales: React.FC = () => {
       setBarcodeSearch('');
       
       // Message de confirmation avec détails
-      alert(`✅ Produit sélectionné automatiquement !\n\n📦 ${product.name}\n🏷️ Code: ${product.barcode}\n📊 Stock: ${product.stock} unités\n💰 Prix: ${product.price.toFixed(2)} DH\n\n➡️ Le produit a été ajouté au formulaire de vente.`);
+      alert(`✅ Produit sélectionné automatiquement !\n\n📦 ${product.name}\n🏷️ Code: ${product.barcode}\n📊 Stock: ${product.stock} unités\n💰 Prix: ${product.price.toFixed(2)} DA\n\n➡️ Le produit a été ajouté au formulaire de vente.`);
       console.log('✅ Produit sélectionné automatiquement:', product);
     } else {
       // Vérifier si le produit existe mais sans stock
@@ -356,7 +356,7 @@ const Sales: React.FC = () => {
                 {filteredSales.length} vente(s) trouvée(s)
               </p>
               <p className="text-blue-600 dark:text-blue-400 text-sm">
-                Total: {filteredSales.reduce((sum, sale) => sum + sale.totalAmount, 0).toFixed(2)} DH
+                Total: {filteredSales.reduce((sum, sale) => sum + sale.totalAmount, 0).toFixed(2)} DA
               </p>
             </div>
             <button
@@ -419,7 +419,7 @@ const Sales: React.FC = () => {
                   ✅ Produit sélectionné: {selectedProduct.name}
                 </p>
                 <p className="text-green-600 dark:text-green-400 text-sm">
-                  Code: {selectedProduct.barcode} | Stock: {selectedProduct.stock} | Prix: {selectedProduct.price.toFixed(2)} DH
+                  Code: {selectedProduct.barcode} | Stock: {selectedProduct.stock} | Prix: {selectedProduct.price.toFixed(2)} DA
                 </p>
               </div>
             )}
@@ -481,7 +481,7 @@ const Sales: React.FC = () => {
                 <option value="">Sélectionner un produit</option>
                 {products.filter(p => p.stock > 0).map(product => (
                   <option key={product.id} value={product.id}>
-                    {product.name} - {product.barcode} - {product.price.toFixed(2)} DH (Stock: {product.stock})
+                    {product.name} - {product.barcode} - {product.price.toFixed(2)} DA (Stock: {product.stock})
                   </option>
                 ))}
               </select>
@@ -500,7 +500,7 @@ const Sales: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Réduction (DH)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Réduction (DA)</label>
               <input
                 type="number"
                 step="0.01"
@@ -512,7 +512,7 @@ const Sales: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Montant payé (DH)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Montant payé (DA)</label>
               <input
                 type="number"
                 step="0.01"
@@ -596,10 +596,10 @@ const Sales: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {sale.totalAmount.toFixed(2)} DH
+                        {sale.totalAmount.toFixed(2)} DA
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Payé: {sale.paidAmount.toFixed(2)} DH
+                        Payé: {sale.paidAmount.toFixed(2)} DA
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

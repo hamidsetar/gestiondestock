@@ -129,7 +129,7 @@ const PaymentCompletion: React.FC = () => {
 
     const amount = parseFloat(paymentAmount);
     if (amount <= 0 || amount > selectedTransaction.remainingAmount) {
-      alert(`Le montant doit être entre 0 et ${selectedTransaction.remainingAmount.toFixed(2)} DH`);
+      alert(`Le montant doit être entre 0 et ${selectedTransaction.remainingAmount.toFixed(2)} DA`);
       return;
     }
 
@@ -204,7 +204,7 @@ const PaymentCompletion: React.FC = () => {
       setPaymentAmount('');
       setPaymentMethod('cash');
 
-      alert(`Paiement de ${amount.toFixed(2)} DH enregistré avec succès !`);
+      alert(`Paiement de ${amount.toFixed(2)} DA enregistré avec succès !`);
     } catch (error) {
       console.error('Error processing payment:', error);
       alert('Erreur lors du traitement du paiement');
@@ -249,7 +249,7 @@ const PaymentCompletion: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {filteredTransactions.reduce((sum, t) => sum + t.remainingAmount, 0).toFixed(0)} DH
+                {filteredTransactions.reduce((sum, t) => sum + t.remainingAmount, 0).toFixed(0)} DA
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400">Total à encaisser</p>
             </div>
@@ -322,19 +322,19 @@ const PaymentCompletion: React.FC = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-300">Total:</span>
                   <span className="font-medium text-gray-900 dark:text-white">
-                    {selectedTransaction.totalAmount.toFixed(2)} DH
+                    {selectedTransaction.totalAmount.toFixed(2)} DA
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-300">Déjà payé:</span>
                   <span className="font-medium text-green-600 dark:text-green-400">
-                    {selectedTransaction.paidAmount.toFixed(2)} DH
+                    {selectedTransaction.paidAmount.toFixed(2)} DA
                   </span>
                 </div>
                 <div className="flex justify-between border-t pt-2">
                   <span className="text-gray-600 dark:text-gray-300">Reste à payer:</span>
                   <span className="font-bold text-red-600 dark:text-red-400">
-                    {selectedTransaction.remainingAmount.toFixed(2)} DH
+                    {selectedTransaction.remainingAmount.toFixed(2)} DA
                   </span>
                 </div>
               </div>
@@ -344,7 +344,7 @@ const PaymentCompletion: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Montant du paiement (DH)
+                  Montant du paiement (DA)
                 </label>
                 <input
                   type="number"
@@ -481,13 +481,13 @@ const PaymentCompletion: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm">
                       <div className="text-gray-900 dark:text-white">
-                        Total: {transaction.totalAmount.toFixed(2)} DH
+                        Total: {transaction.totalAmount.toFixed(2)} DA
                       </div>
                       <div className="text-green-600 dark:text-green-400">
-                        Payé: {transaction.paidAmount.toFixed(2)} DH
+                        Payé: {transaction.paidAmount.toFixed(2)} DA
                       </div>
                       <div className="text-red-600 dark:text-red-400 font-medium">
-                        Reste: {transaction.remainingAmount.toFixed(2)} DH
+                        Reste: {transaction.remainingAmount.toFixed(2)} DA
                       </div>
                     </div>
                   </td>

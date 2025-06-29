@@ -127,7 +127,7 @@ const Rentals: React.FC = () => {
       setBarcodeSearch('');
       
       // Message de confirmation avec détails
-      alert(`✅ Produit sélectionné automatiquement !\n\n📦 ${product.name}\n🏷️ Code: ${product.barcode}\n📊 Stock: ${product.stock} unités\n💰 Prix location: ${product.rentalPrice.toFixed(2)} DH/jour\n\n➡️ Le produit a été ajouté au formulaire de location.`);
+      alert(`✅ Produit sélectionné automatiquement !\n\n📦 ${product.name}\n🏷️ Code: ${product.barcode}\n📊 Stock: ${product.stock} unités\n💰 Prix location: ${product.rentalPrice.toFixed(2)} DA/jour\n\n➡️ Le produit a été ajouté au formulaire de location.`);
       console.log('✅ Produit sélectionné automatiquement:', product);
     } else {
       // Vérifier si le produit existe mais sans stock
@@ -383,7 +383,7 @@ const Rentals: React.FC = () => {
                 {filteredRentals.length} location(s) trouvée(s)
               </p>
               <p className="text-purple-600 dark:text-purple-400 text-sm">
-                Total: {filteredRentals.reduce((sum, rental) => sum + rental.totalAmount, 0).toFixed(2)} DH
+                Total: {filteredRentals.reduce((sum, rental) => sum + rental.totalAmount, 0).toFixed(2)} DA
               </p>
             </div>
             <button
@@ -446,7 +446,7 @@ const Rentals: React.FC = () => {
                   ✅ Produit sélectionné: {selectedProduct.name}
                 </p>
                 <p className="text-green-600 dark:text-green-400 text-sm">
-                  Code: {selectedProduct.barcode} | Stock: {selectedProduct.stock} | Prix: {selectedProduct.rentalPrice.toFixed(2)} DH/jour
+                  Code: {selectedProduct.barcode} | Stock: {selectedProduct.stock} | Prix: {selectedProduct.rentalPrice.toFixed(2)} DA/jour
                 </p>
               </div>
             )}
@@ -508,7 +508,7 @@ const Rentals: React.FC = () => {
                 <option value="">Sélectionner un produit</option>
                 {products.filter(p => p.stock > 0).map(product => (
                   <option key={product.id} value={product.id}>
-                    {product.name} - {product.barcode} - {product.rentalPrice.toFixed(2)} DH/jour (Stock: {product.stock})
+                    {product.name} - {product.barcode} - {product.rentalPrice.toFixed(2)} DA/jour (Stock: {product.stock})
                   </option>
                 ))}
               </select>
@@ -527,7 +527,7 @@ const Rentals: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Caution (DH)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Caution (DA)</label>
               <input
                 type="number"
                 step="0.01"
@@ -539,7 +539,7 @@ const Rentals: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Montant payé (DH)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Montant payé (DA)</label>
               <input
                 type="number"
                 step="0.01"
@@ -657,10 +657,10 @@ const Rentals: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {rental.totalAmount.toFixed(2)} DH
+                        {rental.totalAmount.toFixed(2)} DA
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        Payé: {rental.paidAmount.toFixed(2)} DH
+                        Payé: {rental.paidAmount.toFixed(2)} DA
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

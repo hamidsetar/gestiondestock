@@ -17,14 +17,14 @@ export const generateReceiptPDF = (receipt: Receipt, client: Client, products: P
   // En-tête boutique
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('HALI', 40, yPosition, { align: 'center' });
+  doc.text('HIYA', 40, yPosition, { align: 'center' });
   yPosition += 6;
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('Boutique de Mode & Location', 40, yPosition, { align: 'center' });
   yPosition += 4;
-  doc.text('Tel: +212 XXX XXX XXX', 40, yPosition, { align: 'center' });
+  doc.text('Tel: +213 XXX XXX XXX', 40, yPosition, { align: 'center' });
   yPosition += 8;
   
   // Ligne de séparation
@@ -119,8 +119,8 @@ export const generateReceiptPDF = (receipt: Receipt, client: Client, products: P
     doc.text(shortName, 5, yPosition);
     yPosition += 4;
     
-    doc.text(`${item.quantity} x ${item.unitPrice.toFixed(2)} DH`, 5, yPosition);
-    doc.text(`${item.total.toFixed(2)} DH`, 60, yPosition);
+    doc.text(`${item.quantity} x ${item.unitPrice.toFixed(2)} DA`, 5, yPosition);
+    doc.text(`${item.total.toFixed(2)} DA`, 60, yPosition);
     yPosition += 6;
   });
   
@@ -133,25 +133,25 @@ export const generateReceiptPDF = (receipt: Receipt, client: Client, products: P
   doc.setFont('helvetica', 'bold');
   
   doc.text(`SOUS-TOTAL:`, 5, yPosition);
-  doc.text(`${receipt.total.toFixed(2)} DH`, 60, yPosition);
+  doc.text(`${receipt.total.toFixed(2)} DA`, 60, yPosition);
   yPosition += 5;
   
   if (receipt.type === 'rental') {
     const caution = receipt.total * 0.1;
     doc.setFont('helvetica', 'normal');
     doc.text(`Caution:`, 5, yPosition);
-    doc.text(`${caution.toFixed(2)} DH`, 60, yPosition);
+    doc.text(`${caution.toFixed(2)} DA`, 60, yPosition);
     yPosition += 5;
     doc.setFont('helvetica', 'bold');
   }
   
   doc.text(`PAYE:`, 5, yPosition);
-  doc.text(`${receipt.paid.toFixed(2)} DH`, 60, yPosition);
+  doc.text(`${receipt.paid.toFixed(2)} DA`, 60, yPosition);
   yPosition += 5;
   
   if (receipt.remaining > 0) {
     doc.text(`RESTE:`, 5, yPosition);
-    doc.text(`${receipt.remaining.toFixed(2)} DH`, 60, yPosition);
+    doc.text(`${receipt.remaining.toFixed(2)} DA`, 60, yPosition);
     yPosition += 8;
   } else {
     doc.text('*** PAYE INTEGRALEMENT ***', 40, yPosition, { align: 'center' });
@@ -231,7 +231,7 @@ export const generateClientListPDF = (clients: any[]) => {
   
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('LISTE DES CLIENTS - HALI', 105, 60, { align: 'center' });
+  doc.text('LISTE DES CLIENTS - HIYA', 105, 60, { align: 'center' });
   
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
@@ -265,5 +265,5 @@ export const generateClientListPDF = (clients: any[]) => {
     yPosition += 8;
   });
   
-  doc.save('liste-clients-hali.pdf');
+  doc.save('liste-clients-hiya.pdf');
 };
