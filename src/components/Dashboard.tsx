@@ -92,10 +92,10 @@ const Dashboard: React.FC = () => {
   const totalProducts = products.reduce((sum, product) => sum + product.stock, 0);
   const totalSales = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
   
-  // Calcul des bénéfices
+  // Calcul des bénéfices réels
   const totalProfit = sales.reduce((sum, sale) => {
     const product = products.find(p => p.id === sale.productId);
-    if (product) {
+    if (product && product.purchasePrice) {
       const profit = (sale.unitPrice - product.purchasePrice) * sale.quantity;
       return sum + profit;
     }
@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
       value: `${totalSales.toFixed(2)} DA`,
       icon: DollarSign,
       color: 'bg-emerald-500',
-      trend: `Marge: ${profitMargin.toFixed(1)}%`
+      trend: `${sales.length} vente(s)`
     },
     {
       title: 'Bénéfices',

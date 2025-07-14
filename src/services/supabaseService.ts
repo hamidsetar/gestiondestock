@@ -118,7 +118,7 @@ export class SupabaseService {
         barcode: product.barcode,
         price: parseFloat(product.price),
         rentalPrice: parseFloat(product.rental_price),
-        purchasePrice: parseFloat(product.purchase_price),
+        purchasePrice: parseFloat(product.purchase_price || 0),
         stock: product.stock,
         createdAt: product.created_at
       }));
