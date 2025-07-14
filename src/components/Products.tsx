@@ -18,6 +18,7 @@ const Products: React.FC = () => {
     barcode: '',
     price: '',
     rentalPrice: '',
+    purchasePrice: '',
     stock: ''
   });
 
@@ -51,6 +52,7 @@ const Products: React.FC = () => {
       barcode: '',
       price: '',
       rentalPrice: '',
+      purchasePrice: '',
       stock: ''
     });
     setEditingProduct(null);
@@ -70,6 +72,7 @@ const Products: React.FC = () => {
         barcode: formData.barcode,
         price: parseFloat(formData.price),
         rentalPrice: parseFloat(formData.rentalPrice),
+        purchasePrice: parseFloat(formData.purchasePrice),
         stock: parseInt(formData.stock),
         createdAt: editingProduct?.createdAt || new Date().toISOString()
       };
@@ -93,6 +96,7 @@ const Products: React.FC = () => {
       barcode: product.barcode,
       price: product.price.toString(),
       rentalPrice: product.rentalPrice.toString(),
+      purchasePrice: product.purchasePrice.toString(),
       stock: product.stock.toString()
     });
     setShowAddForm(true);
@@ -209,6 +213,18 @@ const Products: React.FC = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Prix d'achat (DA)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.purchasePrice}
+                onChange={(e) => setFormData({...formData, purchasePrice: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Prix de vente (DA)</label>
               <input
                 type="number"
@@ -308,6 +324,7 @@ const Products: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div>Vente: {product.price.toFixed(2)} DA</div>
+                    <div className="text-gray-500">Achat: {product.purchasePrice.toFixed(2)} DA</div>
                     <div className="text-gray-500">Location: {product.rentalPrice.toFixed(2)} DA/jour</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

@@ -91,6 +91,19 @@ const Dashboard: React.FC = () => {
   // Calculate statistics
   const totalProducts = products.reduce((sum, product) => sum + product.stock, 0);
   const totalSales = sales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+  
+  // Calcul des bénéfices
+  const totalProfit = sales.reduce((sum, sale) => {
+    const product = products.find(p => p.id === sale.productId);
+    if (product) {
+      const profit = (sale.unitPrice - product.purchasePrice) * sale.quantity;
+      return sum + profit;
+    }
+    return sum;
+  }, 0);
+  
+  const profitMargin = totalSales > 0 ? (totalProfit / totalSales) * 100 : 0;
+  
   const totalRentals = rentals.reduce((sum, rental) => sum + rental.totalAmount, 0);
   
   const activeRentals = rentals.filter(rental => rental.status === 'active').length;
@@ -110,7 +123,14 @@ const Dashboard: React.FC = () => {
       value: `${totalSales.toFixed(2)} DA`,
       icon: DollarSign,
       color: 'bg-emerald-500',
-      trend: '+12% ce mois'
+      trend: `Marge: ${profitMargin.toFixed(1)}%`
+    },
+    {
+      title: 'Bénéfices',
+      value: `${totalProfit.toFixed(2)} DA`,
+      icon: TrendingUp,
+      color: 'bg-green-500',
+      trend: `${profitMargin.toFixed(1)}% de marge`
     },
     {
       title: 'Produits en stock',

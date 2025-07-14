@@ -75,6 +75,7 @@ export interface Database {
           barcode: string;
           price: number;
           rental_price: number;
+          purchase_price: number;
           stock: number;
           created_at: string;
         };
@@ -87,6 +88,7 @@ export interface Database {
           barcode: string;
           price: number;
           rental_price: number;
+          purchase_price: number;
           stock: number;
           created_at?: string;
         };
@@ -99,6 +101,7 @@ export interface Database {
           barcode?: string;
           price?: number;
           rental_price?: number;
+          purchase_price?: number;
           stock?: number;
           created_at?: string;
         };

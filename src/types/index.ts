@@ -17,6 +17,7 @@ export interface Product {
   barcode: string;
   price: number;
   rentalPrice: number;
+  purchasePrice: number;
   stock: number;
   createdAt: string;
 }
